@@ -10,7 +10,7 @@ def get_env():
 
     dirs_files = {}
 
-    for item in os.walk(os.getcwd()):
+    for item in os.walk(os.path.join(os.getcwd(), 'ToSort')):
         file_list = []
         directory = str(item[0])
         for i in item[2]:
@@ -37,9 +37,8 @@ def create_folders():
         for value in values:
             file_name = value.split('.')
             if file_name[len(file_name)-1] in ['jpg', 'JPG']:  # checks if file extension is jpg
-                img = PIL.Image.open(value)
-                exif_data = img._getexif()[34853][29].replace(':', '-')
-                print(exif_data)
+                img = PIL.Image.open(os.path.join(keys, value))
+                exif_data = img._getexif()[36867].split(' ')[0].replace(':', '-')
                 supported_files.append((keys, value, exif_data))  # adds file and its path to list of supported
 
                 if exif_data not in unique_names:  # checks if date part of the name is unique
@@ -49,10 +48,7 @@ def create_folders():
                 video_files.append((keys, value))  # adds file and its path to list of renamed files
 
             else:
-                if keys == os.getcwd():  # if file in main directory and not img nor mp4
-                    pass
-                else:
-                    unsupported_files.append((keys, value))  # adds file and its path to list of unsupported files
+                unsupported_files.append((keys, value))  # adds file and its path to list of unsupported files
 
     if not os.path.exists(os.path.join(os.getcwd(), 'Sorted')):
         os.mkdir("Sorted")
@@ -88,6 +84,5 @@ def move_files():
         os.rename(os.path.join(file[0], file[1]), os.path.join(path, 'Video', file[1]))
 
 if __name__ == '__main__':
-    get_env()
     create_folders()
-    # move_files()
+    move_files()
