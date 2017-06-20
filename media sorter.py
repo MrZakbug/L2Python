@@ -1,4 +1,5 @@
 import os
+import PIL.Image
 
 
 def get_env():
@@ -27,35 +28,35 @@ def create_folders():
     unique_names = ()
     global supported_files
     supported_files = []
-    global renamed_files
-    renamed_files = []
+    global video_files
+    video_files = []
     global unsupported_files
     unsupported_files = []
 
     for keys, values in get_env().items():
         for value in values:
             file_name = value.split('.')
-            if file_name[len(file_name)-1] in ['jpg', 'mp4']:  # checks if file extension is jpg or mp4
-                name = file_name[0]
-                name_parts = name.split('_')
-                if name_parts[0] in ['img', 'IMG', 'vid', 'VID']:  # checks if file name starts with img or vid
-                    supported_files.append((keys, value, name_parts[1]))  # adds file and its path to list of supported
+            if file_name[len(file_name)-1] == 'jpg':  # checks if file extension is jpg
+                img = PIL.Image.open(value)
+                exif_data = img._getexif()[34853][29].replace(':', '-')
+                print(exif_data)
+                supported_files.append((keys, value, exif_data))  # adds file and its path to list of supported
 
-                    if name_parts[1] not in unique_names:  # checks if date part of the name is unique
-                        unique_names += (name_parts[1],)
-                else:
-                    renamed_files.append((keys, value))  # adds file and its path to list of renamed files
+                if exif_data not in unique_names:  # checks if date part of the name is unique
+                    unique_names += (exif_data,)
             else:
-                if value == 'media sorter.py':
+                if value in ['media sorter.py', 'README.md']:
                     pass
+                elif file_name[len(file_name)-1] == 'mp4':
+                    video_files.append((keys, value))  # adds file and its path to list of renamed files
                 else:
                     unsupported_files.append((keys, value))  # adds file and its path to list of unsupported files
 
     if not os.path.exists(os.path.join(os.getcwd(), 'Sorted')):
         os.mkdir("Sorted")
 
-    if not os.path.exists(os.path.join(os.getcwd(), 'Sorted', 'Renamed')):
-        os.mkdir(os.path.join(os.getcwd(), 'Sorted', "Renamed"))
+    if not os.path.exists(os.path.join(os.getcwd(), 'Sorted', 'Video')):
+        os.mkdir(os.path.join(os.getcwd(), 'Sorted', "Video"))
 
     if not os.path.exists(os.path.join(os.getcwd(), 'Sorted', 'Unsupported')):
         os.mkdir(os.path.join(os.getcwd(), 'Sorted', "Unsupported"))
@@ -81,8 +82,8 @@ def move_files():
     for file in unsupported_files:
         os.rename(os.path.join(file[0], file[1]), os.path.join(path, 'Unsupported', file[1]))
 
-    for file in renamed_files:
-        os.rename(os.path.join(file[0], file[1]), os.path.join(path, 'Renamed', file[1]))
+    for file in video_files:
+        os.rename(os.path.join(file[0], file[1]), os.path.join(path, 'Video', file[1]))
 
 if __name__ == '__main__':
     create_folders()
