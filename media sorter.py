@@ -36,7 +36,7 @@ def create_folders():
     for keys, values in get_env().items():
         for value in values:
             file_name = value.split('.')
-            if file_name[len(file_name)-1] == 'jpg':  # checks if file extension is jpg
+            if file_name[len(file_name)-1] in ['jpg', 'JPG']:  # checks if file extension is jpg
                 img = PIL.Image.open(value)
                 exif_data = img._getexif()[34853][29].replace(':', '-')
                 print(exif_data)
@@ -45,11 +45,11 @@ def create_folders():
                 if exif_data not in unique_names:  # checks if date part of the name is unique
                     unique_names += (exif_data,)
 
-            elif file_name[len(file_name) - 1] == 'mp4':
+            elif file_name[len(file_name) - 1] in ['mp4', 'MP4']:
                 video_files.append((keys, value))  # adds file and its path to list of renamed files
 
             else:
-                if keys == os.walk(os.getcwd()):  # if file in main directory and not img nor mp4
+                if keys == os.getcwd():  # if file in main directory and not img nor mp4
                     pass
                 else:
                     unsupported_files.append((keys, value))  # adds file and its path to list of unsupported files
@@ -88,5 +88,6 @@ def move_files():
         os.rename(os.path.join(file[0], file[1]), os.path.join(path, 'Video', file[1]))
 
 if __name__ == '__main__':
+    get_env()
     create_folders()
-    move_files()
+    # move_files()
