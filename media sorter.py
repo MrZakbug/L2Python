@@ -40,20 +40,21 @@ def create_folders():
             for value in values:
                 file_name = value.split('.')
                 if file_name[len(file_name)-1] in ['jpg', 'JPG']:  # checks if file extension is jpg
-                    img = PIL.Image.open(os.path.join(keys, value))
-                    exif_data = img._getexif()[36867].split(' ')[0].replace(':', '-')
-                    supported_files.append((keys, value, exif_data))  # adds file and its path to list of supported
+                    try:
+                        img = PIL.Image.open(os.path.join(keys, value))
+                        exif_data = img._getexif()[36867].split(' ')[0].replace(':', '-')
+                        supported_files.append((keys, value, exif_data))  # adds file and its path to list of supported
 
-                    if exif_data not in unique_names:  # checks if date part of the name is unique
-                        unique_names += (exif_data,)
-
+                        if exif_data not in unique_names:  # checks if date part of the name is unique
+                            unique_names += (exif_data,)
+                    except TypeError:
+                        video_files.append((keys, value))
                 elif file_name[len(file_name) - 1] in ['mp4', 'MP4']:
                     video_files.append((keys, value))  # adds file and its path to list of renamed files
 
                 else:
                     unsupported_files.append((keys, value))  # adds file and its path to list of unsupported files
     except AttributeError:
-        pass
 
     if not os.path.exists(os.path.join(os.getcwd(), 'Sorted')):
         os.mkdir("Sorted")
