@@ -44,11 +44,13 @@ def create_folders():
 
                 if exif_data not in unique_names:  # checks if date part of the name is unique
                     unique_names += (exif_data,)
+
+            elif file_name[len(file_name) - 1] == 'mp4':
+                video_files.append((keys, value))  # adds file and its path to list of renamed files
+
             else:
-                if value in ['media sorter.py', 'README.md']:
+                if keys == os.walk(os.getcwd()):  # if file in main directory and not img nor mp4
                     pass
-                elif file_name[len(file_name)-1] == 'mp4':
-                    video_files.append((keys, value))  # adds file and its path to list of renamed files
                 else:
                     unsupported_files.append((keys, value))  # adds file and its path to list of unsupported files
 
