@@ -9,14 +9,16 @@ def get_env():
     """
 
     dirs_files = {}
-
-    for item in os.walk(os.getcwd()):
-        file_list = []
-        directory = str(item[0])
-        for i in item[2]:
-            file_list.append(i)
-        dirs_files[directory] = file_list
-    return dirs_files
+    if 'ToSort' in os.listdir():
+        for item in os.walk(os.path.join(os.getcwd(), 'ToSort')):
+            file_list = []
+            directory = str(item[0])
+            for i in item[2]:
+                file_list.append(i)
+            dirs_files[directory] = file_list
+        return dirs_files
+    else:
+        print('There is no ToSort directory present here!')
 
 
 def create_folders():
@@ -33,26 +35,26 @@ def create_folders():
     global unsupported_files
     unsupported_files = []
 
-    for keys, values in get_env().items():
-        for value in values:
-            file_name = value.split('.')
-            if file_name[len(file_name)-1] == 'jpg':  # checks if file extension is jpg
-                img = PIL.Image.open(value)
-                exif_data = img._getexif()[34853][29].replace(':', '-')
-                print(exif_data)
-                supported_files.append((keys, value, exif_data))  # adds file and its path to list of supported
+    try:
+        for keys, values in get_env().items():
+            for value in values:
+                file_name = value.split('.')
+                if file_name[len(file_name)-1] in ['jpg', 'JPG']:  # checks if file extension is jpg
+                    try:
+                        img = PIL.Image.open(os.path.join(keys, value))
+                        exif_data = img._getexif()[36867].split(' ')[0].replace(':', '-')
+                        supported_files.append((keys, value, exif_data))  # adds file and its path to list of supported
 
-                if exif_data not in unique_names:  # checks if date part of the name is unique
-                    unique_names += (exif_data,)
+                        if exif_data not in unique_names:  # checks if date part of the name is unique
+                            unique_names += (exif_data,)
+                    except TypeError:
+                        video_files.append((keys, value))
+                elif file_name[len(file_name) - 1] in ['mp4', 'MP4']:
+                    video_files.append((keys, value))  # adds file and its path to list of renamed files
 
-            elif file_name[len(file_name) - 1] == 'mp4':
-                video_files.append((keys, value))  # adds file and its path to list of renamed files
-
-            else:
-                if keys == os.walk(os.getcwd()):  # if file in main directory and not img nor mp4
-                    pass
                 else:
                     unsupported_files.append((keys, value))  # adds file and its path to list of unsupported files
+    except AttributeError:
 
     if not os.path.exists(os.path.join(os.getcwd(), 'Sorted')):
         os.mkdir("Sorted")
@@ -90,3 +92,4 @@ def move_files():
 if __name__ == '__main__':
     create_folders()
     move_files()
+    print('Finished!')
